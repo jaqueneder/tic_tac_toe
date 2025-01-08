@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jogo da Velha</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background: #000000;
+      }
+
+      .jogo {
+        text-align: center;
+      }
+
+      .tabuleiro {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        grid-template-rows: repeat(3, 100px);
+        gap: 5px;
+      }
+
+      .celula {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+        font-weight: bold;
+        background: #fff;
+        border: 2px solid #ddd;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .celula:hover {
+        background: #f0f0f0;
+      }
+
+      .celula.ocupada {
+        cursor: not-allowed;
+      }
+
+      .vencedor {
+        margin-top: 20px;
+        font-size: 1.5rem;
+        color: #fff;
+      }
+
+      .reiniciar {
+        margin-top: 10px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        color: #fff;
+        background: #880cad;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .reiniciar:hover {
+        background: #500474;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="jogo">
+      <div class="tabuleiro" id="tabuleiro"></div>
+      <div class="vencedor" id="mensagemVencedor"></div>
+      <button class="reiniciar" id="botaoReiniciar">Reiniciar</button>
+    </div>
+
+    <script>
+      alert("Jogo da Velha: O jogo deve ter dois jogadores!");
+      const tabuleiro = document.getElementById("tabuleiro");
+      const mensagemVencedor = document.getElementById("mensagemVencedor");
+      const botaoReiniciar = document.getElementById("botaoReiniciar");
+
+      let jogadorAtual = "X";
+      let jogoAtivo = true;
+      let estadoJogo = Array(9).fill(null);
+
+      const combinacoesVencedoras = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      function verificarVencedor() {
+        for (const combinacao of combinacoesVencedoras) {
+          const [a, b, c] = combinacao;
+          if (
+            estadoJogo[a] &&
+            estadoJogo[a] === estadoJogo[b] &&
+            estadoJogo[a] === estadoJogo[c]
+          ) {
+            return estadoJogo[a];
+          }
+        }
+        return estadoJogo.includes(null) ? null : "Empate";
+      }
+
+      function tratarCliqueCelula(evento) {
+        const celula = evento.target;
+        const indiceCelula = celula.dataset.indice;
+
+        if (!jogoAtivo || estadoJogo[indiceCelula]) return;
+
+        estadoJogo[indiceCelula] = jogadorAtual;
+        celula.textContent = jogadorAtual;
+        celula.classList.add("ocupada");
+
+        const vencedor = verificarVencedor();
+
+        if (vencedor) {
+          jogoAtivo = false;
+          mensagemVencedor.textContent =
+            vencedor === "Empate" ? "Empate!" : `Jogador ${vencedor} venceu!`;
+          return;
+        }
+
+        jogadorAtual = jogadorAtual === "X" ? "O" : "X";
+      }
+
+      function reiniciarJogo() {
+        estadoJogo.fill(null);
+        jogoAtivo = true;
+        jogadorAtual = "X";
+        mensagemVencedor.textContent = "";
+        tabuleiro.innerHTML = "";
+        criarTabuleiro();
+      }
+
+      function criarTabuleiro() {
+        for (let i = 0; i < 9; i++) {
+          const celula = document.createElement("div");
+          celula.classList.add("celula");
+          celula.dataset.indice = i;
+          celula.addEventListener("click", tratarCliqueCelula);
+          tabuleiro.appendChild(celula);
+        }
+      }
+
+      botaoReiniciar.addEventListener("click", reiniciarJogo);
+
+      criarTabuleiro();
+    </script>
+  </body>
+</html>
